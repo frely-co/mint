@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize)]
@@ -10,9 +12,11 @@ pub struct AdminInitiateAuthRequest {
 
 #[derive(Serialize)]
 pub struct AdminInitiateAuthResponse {
-    pub success: bool,
-    pub message: String,
-    pub id_token: String,
+    #[serde(rename = "AuthenticationResult")]
+    pub authentication_result: Option<AuthenticationResultType>,
+    pub challenge_name: Option<String>,
+    pub challenge_parameters: Option<HashMap<String, String>>,
+    pub session: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -33,6 +37,7 @@ pub struct AuthenticationResultType {
     pub expires_in: i32,
     pub token_type: String,
     pub refresh_token: String,
+    #[serde(rename = "IdToken")]
     pub id_token: String,
     pub new_device_metadata: NewDeviceMetadataType,
 }

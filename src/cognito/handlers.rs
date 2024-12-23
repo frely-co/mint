@@ -1,94 +1,68 @@
-use core::panic;
-
-use aws_sdk_cognitoidentityprovider::types::builders::AuthenticationResultTypeBuilder;
-use axum::body::Bytes;
-use axum::http::HeaderMap;
-use axum::{extract::State, Json};
-use axum_macros::debug_handler;
-use serde_json::Value;
-
 use crate::memory::store::SharedStore;
+use super::models::*;
+use std::{collections::HashMap, error::Error};
 
-use super::models::{AuthenticationResultType, NewDeviceMetadataType};
-use super::models::{SignUpRequest, SignUpResponse, AdminInitiateAuthRequest};
+pub async fn handle_admin_initiate_auth(
+    store: &SharedStore,
+    payload: AdminInitiateAuthRequest
+) -> Result<AdminInitiateAuthResponse, Box<dyn Error>> {
+    let params = match payload.AuthParameters {
+        Some(p) => p,
+        None => return Err("Missing AuthParameters".into()),
+    };
 
-#[debug_handler]
-pub async fn admin_initiate_auth(
-    State(store): State<SharedStore>,
-    headers: HeaderMap,
-    body_bytes: Bytes  // use this and refactor the code
-    // Json(payload): Json(AdminInitiateAuthRequest),
-) -> Json<AuthenticationResultType> {
-    // Try to get the "X-Amz-Target" header
-    println!("Primeiro passo aqui");
-    let x_amz_target = headers
-        .get("X-Amz-Target")
-        .and_then(|val| val.to_str().ok()) // convert to &str if valid UTF-8
-        .unwrap_or("");
+    let username = params.get("USERNAME").ok_or("Missing USERNAME param")?;
+    let password = params.get("PASSWORD").ok_or("Missing PASSWORD param")?;
 
-    // Check that the X-Amz-Target header matches what you expect
-    if x_amz_target != "AWSCognitoIdentityProviderService.AdminInitiateAuth" {
-        panic!("panic")
-    }
+    println!("Testeeejl");
+    let mut data = store.write().await;
+    let user_map = &mut data.cognito.users;
 
-    // Extract AuthParameters from the JSON payload
-    let auth_parameters = payload.AuthParameters;
-    if let Some(params) = auth_parameters {
-        let username = params
-            .get("USERNAME").unwrap();
-        let password = params
-            .get("PASSWORD").unwrap();
-
-        let data = store.write().await;
-
-        // Validate user credentials
-        let response = if let Some(stored_password) = data.cognito.users.get(username) {
-            if stored_password == password {
-                println!("Entoru aqui");
-                let response = AuthenticationResultType {
-                    access_token: "access_token".to_string(),
-                    expires_in: 123,
-                    token_type: "token_type".to_string(),
-                    refresh_token: "refresh_token".to_string(),
-                    id_token: "id_token".to_string(),
-                    new_device_metadata: NewDeviceMetadataType {
-                        device_key: "device_key".to_string(),
-                        device_group_key: "device_key_group".to_string(),
-                    },
-                };
-                return Json(response);
-            } else {
-                panic!("panic")
-            }
+    if let Some(stored_pass) = user_map.get(username) {
+        if stored_pass == password {
+            // Return a success result
+            let authentication_result_type = AuthenticationResultType {
+                access_token: "access_token".to_owned(),
+                expires_in: 3600,
+                token_type: "Bearer".to_owned(),
+                refresh_token: "refresh_token".to_owned(),
+                id_token: "id_token".to_owned(),
+                new_device_metadata: NewDeviceMetadataType {
+                    device_key: "device_key".to_owned(),
+                    device_group_key: "device_group_key".to_owned(),
+                },
+            };
+            Ok(AdminInitiateAuthResponse {
+                authentication_result: Some(authentication_result_type),
+                challenge_name: Some("challenge_name".to_string()),
+                challenge_parameters: Some(HashMap::new()),
+                session: Some("session".to_string()),
+            })
         } else {
-            panic!("panic")
-        };
+            Err("Invalid password".into())
+        }
     } else {
-        panic!("panic")
+        Err("User not found".into())
     }
 }
 
-pub async fn signup(
-    State(store): State<SharedStore>,
-    Json(payload): Json<SignUpRequest>,
-) -> Json<SignUpResponse> {
+pub async fn handle_signup(
+    store: &SharedStore,
+    payload: SignUpRequest
+) -> SignUpResponse {
     let mut data = store.write().await;
+    let user_map = &mut data.cognito.users;
 
-    // Check if the user already exists
-    if data.cognito.users.contains_key(&payload.username) {
-        return Json(SignUpResponse {
+    if user_map.contains_key(&payload.username) {
+        return SignUpResponse {
             success: false,
             message: "User already exists".to_string(),
-        });
+        };
     }
 
-    // Register the new user
-    data.cognito
-        .users
-        .insert(payload.username.clone(), payload.password);
-
-    Json(SignUpResponse {
+    user_map.insert(payload.username.clone(), payload.password);
+    SignUpResponse {
         success: true,
         message: "User registered successfully".to_string(),
-    })
+    }
 }
