@@ -6,7 +6,7 @@ pub async fn handle_admin_initiate_auth(
     store: &SharedStore,
     payload: AdminInitiateAuthRequest
 ) -> Result<AdminInitiateAuthResponse, Box<dyn Error>> {
-    let params = match payload.AuthParameters {
+    let params = match payload.auth_parameters {
         Some(p) => p,
         None => return Err("Missing AuthParameters".into()),
     };
