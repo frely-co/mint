@@ -1,4 +1,4 @@
-use aws_mock::{
+use mint::{
     memory::store::{MemoryStore, SharedStore},
     server::create_router,
 };

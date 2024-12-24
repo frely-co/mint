@@ -247,23 +247,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "aws_mock"
-version = "0.1.0"
-dependencies = [
- "aws-sdk-cognitoidentityprovider",
- "axum",
- "axum-extra",
- "axum-macros",
- "axum-server",
- "headers",
- "hyper 1.5.2",
- "serde",
- "serde_json",
- "tokio",
- "tower 0.5.2",
-]
-
-[[package]]
 name = "axum"
 version = "0.7.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -892,6 +875,23 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4ffbe83022cedc1d264172192511ae958937694cd57ce297164951b8b3568394"
 dependencies = [
  "adler2",
+]
+
+[[package]]
+name = "mint"
+version = "0.1.0"
+dependencies = [
+ "aws-sdk-cognitoidentityprovider",
+ "axum",
+ "axum-extra",
+ "axum-macros",
+ "axum-server",
+ "headers",
+ "hyper 1.5.2",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tower 0.5.2",
 ]
 
 [[package]]

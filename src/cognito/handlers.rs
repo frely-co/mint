@@ -1,10 +1,10 @@
-use crate::memory::store::SharedStore;
 use super::models::*;
+use crate::memory::store::SharedStore;
 use std::{collections::HashMap, error::Error};
 
 pub async fn handle_admin_initiate_auth(
     store: &SharedStore,
-    payload: AdminInitiateAuthRequest
+    payload: AdminInitiateAuthRequest,
 ) -> Result<AdminInitiateAuthResponse, Box<dyn Error>> {
     let params = match payload.auth_parameters {
         Some(p) => p,
@@ -14,7 +14,6 @@ pub async fn handle_admin_initiate_auth(
     let username = params.get("USERNAME").ok_or("Missing USERNAME param")?;
     let password = params.get("PASSWORD").ok_or("Missing PASSWORD param")?;
 
-    println!("Testeeejl");
     let mut data = store.write().await;
     let user_map = &mut data.cognito.users;
 
@@ -46,10 +45,7 @@ pub async fn handle_admin_initiate_auth(
     }
 }
 
-pub async fn handle_signup(
-    store: &SharedStore,
-    payload: SignUpRequest
-) -> SignUpResponse {
+pub async fn handle_signup(store: &SharedStore, payload: SignUpRequest) -> SignUpResponse {
     let mut data = store.write().await;
     let user_map = &mut data.cognito.users;
 
