@@ -1,5 +1,3 @@
-
-```markdown
 # MINT - Mock Infrastructure and Testing
 
 **MINT** (Mock Infrastructure and Testing) is a lightweight, high-performance mock server designed to simulate AWS services. It provides developers with a realistic, in-memory mock environment for testing and debugging cloud-based applications without relying on real AWS services.
