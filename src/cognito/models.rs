@@ -32,16 +32,55 @@ pub struct AdminInitiateAuthResponse {
     pub session: Option<String>,
 }
 
-#[derive(Deserialize)]
-pub struct SignUpRequest {
-    pub username: String,
-    pub password: String,
+/// <p>Specifies whether the attribute is standard or custom.</p>
+#[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
+pub struct AttributeType {
+    /// <p>The name of the attribute.</p>
+    #[serde(rename = "Name")]
+    pub name: String,
+    /// <p>The value of the attribute.</p>
+    #[serde(rename = "Value")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub value: Option<String>,
 }
 
+/// <p>Represents the request to register a user.</p>
+#[derive(Clone, Debug, Default, PartialEq, Serialize)]
+#[derive(Deserialize)]
+pub struct SignUpRequest {
+    /// <p>The ID of the client associated with the user pool.</p>
+    #[serde(rename = "ClientId")]
+    pub client_id: String,
+    /// <p>The password of the user you wish to register.</p>
+    #[serde(rename = "Password")]
+    pub password: String,
+    /// <p>A keyed-hash message authentication code (HMAC) calculated using the secret key of a user pool client and username plus the client ID in the message.</p>
+    #[serde(rename = "SecretHash")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub secret_hash: Option<String>,
+    /// <p>An array of name-value pairs representing user attributes.</p> <p>For custom attributes, you must prepend the <code>custom:</code> prefix to the attribute name.</p>
+    #[serde(rename = "UserAttributes")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub user_attributes: Option<Vec<AttributeType>>,
+    /// <p>The user name of the user you wish to register.</p>
+    #[serde(rename = "Username")]
+    pub username: String,
+    /// <p>The validation data in the request to register a user.</p>
+    #[serde(rename = "ValidationData")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub validation_data: Option<Vec<AttributeType>>,
+}
+
+/// <p>The response from the server for a registration request.</p>
+#[derive(Clone, Debug, Default, Deserialize, PartialEq)]
 #[derive(Serialize)]
 pub struct SignUpResponse {
-    pub success: bool,
-    pub message: String,
+    /// <p>A response from the server indicating that a user registration has been confirmed.</p>
+    #[serde(rename = "UserConfirmed")]
+    pub user_confirmed: bool,
+    /// <p>The UUID of the authenticated user. This is not the same as <code>username</code>.</p>
+    #[serde(rename = "UserSub")]
+    pub user_sub: String,
 }
 
 #[derive(Serialize)]

@@ -1,3 +1,5 @@
+use uuid::Uuid;
+
 use super::models::*;
 use crate::memory::store::SharedStore;
 use std::{collections::HashMap, error::Error};
@@ -51,14 +53,15 @@ pub async fn handle_signup(store: &SharedStore, payload: SignUpRequest) -> SignU
 
     if user_map.contains_key(&payload.username) {
         return SignUpResponse {
-            success: false,
-            message: "User already exists".to_string(),
+            user_confirmed: false,
+            user_sub: Uuid::new_v4().to_string(),
         };
     }
 
     user_map.insert(payload.username.clone(), payload.password);
-    SignUpResponse {
-        success: true,
-        message: "User registered successfully".to_string(),
-    }
+
+    return SignUpResponse {
+        user_confirmed: true,
+        user_sub: Uuid::new_v4().to_string(),
+    };
 }
