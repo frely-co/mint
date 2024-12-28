@@ -59,16 +59,13 @@ pub async fn handle_signup(store: &SharedStore, payload: SignUpRequest) -> SignU
     let mut data = store.write().await;
     let user_map = &mut data.cognito.users;
 
-    if user_map.contains_key(&payload.username) {
-        SignUpResponse {
-            user_confirmed: false,
-            user_sub: Uuid::new_v4().to_string(),
-        }
-    } else {
+    let user_confirmed = !user_map.contains_key(&payload.username);
+    if user_confirmed {
         user_map.insert(payload.username.clone(), payload.password);
-        SignUpResponse {
-            user_confirmed: true,
-            user_sub: Uuid::new_v4().to_string(),
-        }
+    }
+
+    SignUpResponse {
+        user_confirmed,
+        user_sub: Uuid::new_v4().to_string(),
     }
 }
