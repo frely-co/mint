@@ -72,18 +72,20 @@ Use one of the **MINT SDKs** to simplify integration with your preferred languag
 - **[Java SDK](https://github.com/frelyio/mint-sdk-java)**
 - **[JavaScript SDK](https://github.com/frelyio/mint-sdk-js)**
 
-Example with the Python SDK:
-```python
-from mint_sdk import MINTClient
+Example with the Rust SDK:
+``` rust
+use mint_sdk::{MINTClient, Cognito, S3};
 
-client = MINTClient("http://127.0.0.1:3000")
+fn main() {
+    let client = MINTClient::new("http://127.0.0.1:3000");
 
-# Cognito
-client.cognito().sign_up("testuser", "password123")
+    // Cognito
+    client.cognito().sign_up("testuser", "password123");
 
-# S3
-client.s3().create_bucket("test-bucket")
-client.s3().put_object("test-bucket", "example.txt", "Hello, MINT!")
+    // S3
+    client.s3().create_bucket("test-bucket");
+    client.s3().put_object("test-bucket", "example.txt", "Hello, MINT!");
+}
 ```
 
 ---
@@ -99,7 +101,6 @@ We welcome contributions! Please feel free to:
 ## License
 
 MINT is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
-```
 
 ---
 
