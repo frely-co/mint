@@ -98,35 +98,3 @@ pub struct NewDeviceMetadataType {
     pub device_group_key: String,
 }
 
-/// TODO move the models below to sns module
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct SnsPublishRequest {
-    #[serde(rename = "TopicArn")]
-    pub topic_arn: String,
-    #[serde(rename = "Message")]
-    pub message: String,
-    #[serde(rename = "Subject")]
-    pub subject: Option<String>,
-    #[serde(rename = "MessageAttributes")]
-    pub message_attributes: Option<serde_json::Value>,
-}
-
-/// <p>Response for Publish action.</p>
-#[derive(Clone, Debug, Default, PartialEq)]
-#[derive(Serialize)]
-pub struct PublishResult {
-    /// <p>Unique identifier assigned to the published message.</p> <p>Length Constraint: Maximum 100 characters</p>
-    #[serde(rename = "MessageId")]
-    pub message_id: Option<String>,
-    /// <p>This response element applies only to FIFO (first-in-first-out) topics. </p> <p>The sequence number is a large, non-consecutive number that Amazon SNS assigns to each message. The length of <code>SequenceNumber</code> is 128 bits. <code>SequenceNumber</code> continues to increase for each <code>MessageGroupId</code>.</p>
-    #[serde(rename = "SequenceNumber")]
-    pub sequence_number: Option<String>,
-}
-
-#[derive(Clone, Debug, Default, PartialEq)]
-#[derive(Serialize)]
-pub struct PublishResponse {
-    #[serde(rename = "PublishResult")]
-    pub publish_result: PublishResult,
-}

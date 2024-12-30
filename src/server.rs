@@ -1,7 +1,7 @@
 use core::panic;
 
-use crate::cognito::models::PublishResult;
-use crate::cognito::{models::PublishResponse, service as cognito_service};
+use crate::sns::models::PublishResult;
+use crate::{cognito::service as cognito_service, sns::models::PublishResponse};
 use crate::memory::store::SharedStore;
 use axum::{
     body::Bytes, extract::State, http::HeaderMap, response::Response, routing::post, Router,
@@ -11,8 +11,6 @@ use axum::{
 
 pub fn create_router(store: SharedStore) -> Router {
     Router::new()
-        // You can also use .route("/*path", post(dispatch_request)) if you
-        // need to match real AWS endpoints or signatures.
         .route("/", post(dispatch_request))
         .with_state(store)
 }
