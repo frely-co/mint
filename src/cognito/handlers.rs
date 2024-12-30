@@ -1,3 +1,4 @@
+use axum::Error;
 use uuid::Uuid;
 use std::collections::HashMap;
 use thiserror::Error;
@@ -55,7 +56,7 @@ pub async fn handle_admin_initiate_auth(
     }
 }
 
-pub async fn handle_signup(store: &SharedStore, payload: SignUpRequest) -> SignUpResponse {
+pub async fn handle_signup(store: &SharedStore, payload: SignUpRequest) -> Result<SignUpResponse, Error> {
     let mut data = store.write().await;
     let user_map = &mut data.cognito.users;
 
@@ -64,8 +65,8 @@ pub async fn handle_signup(store: &SharedStore, payload: SignUpRequest) -> SignU
         user_map.insert(payload.username.clone(), payload.password);
     }
 
-    SignUpResponse {
+    Ok(SignUpResponse {
         user_confirmed,
         user_sub: Uuid::new_v4().to_string(),
-    }
+    })
 }
