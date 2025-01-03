@@ -1,22 +1,46 @@
+use clap::Parser;
 use mint::{
+    core::cli::Cli,
+    core::cli::Commands,
     memory::store::{MemoryStore, SharedStore},
     server::create_router,
 };
-use tokio::sync::RwLock;
 use std::net::SocketAddr;
+use tokio::sync::RwLock;
 
 #[tokio::main]
 async fn main() {
-    // Construct the app: a single POST endpoint that simulates the AWS Cognito endpoint.
+    let cli = Cli::parse();
     let store = SharedStore::new(RwLock::new(MemoryStore::default()));
 
-    let app = create_router(store);
-
-    // Run the server on localhost:3000
-    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
-    println!("Mock AWS service running at http://{}", addr);
-    axum_server::bind(addr)
-        .serve(app.into_make_service())
-        .await
-        .unwrap();
+    match &cli.command {
+        Commands::Server => {
+            let app = create_router(store);
+            let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
+            println!("Mock AWS service running at http://{}", addr);
+            axum_server::bind(addr)
+                .serve(app.into_make_service())
+                .await
+                .unwrap();
+        }
+        Commands::CreateUser { username, password } => {
+            let mut data = store.write().await;
+            data.cognito
+                .users
+                .insert(username.clone(), password.clone());
+            println!("User {} created successfully!", username);
+        }
+        Commands::AuthenticateUser { username, password } => {
+            let data = store.read().await;
+            if let Some(stored_password) = data.cognito.users.get(username) {
+                if stored_password == password {
+                    println!("User {} authenticated successfully!", username);
+                } else {
+                    println!("Invalid password for user {}", username);
+                }
+            } else {
+                println!("User not found: {}", username);
+            }
+        }
+    }
 }
