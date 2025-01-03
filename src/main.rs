@@ -1,6 +1,9 @@
 use clap::Parser;
 use mint::{
-    core::cli::{cli::{Cli, Commands}, lambda::{create_lambda_function, invoke_lambda_function}},
+    core::cli::{
+        cli::{Cli, Commands},
+        lambda::{create_lambda_function, invoke_lambda_function},
+    },
     memory::store::{MemoryStore, SharedStore},
     server::create_router,
 };
@@ -47,15 +50,17 @@ async fn main() {
             role_arn,
             handler,
             zip_file,
-        } => {
-            create_lambda_function(function_name, runtime, role_arn, handler, zip_file);
-        }
+        } => match create_lambda_function(function_name, runtime, role_arn, handler, zip_file) {
+            Ok(_) => println!("Lambda function created successfully"),
+            Err(e) => eprintln!("Failed to create Lambda function: {}", e),
+        },
         Commands::InvokeLambda {
             function_name,
             payload,
             output_file,
-        } => {
-            invoke_lambda_function(function_name, payload, output_file);
-        }
+        } => match invoke_lambda_function(function_name, payload, output_file) {
+            Ok(_) => println!("Lambda function invoked successfully"),
+            Err(e) => eprintln!("Failed to invoke Lambda function: {}", e),
+        },
     }
 }
