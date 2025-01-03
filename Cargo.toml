@@ -11,6 +11,7 @@ axum-macros = "0.4.2"
 axum-server = "0.7.1"
 base64 = "0.22.1"
 bytes = "1.9.0"
+clap = { version = "4.5.23", features = ["derive"] }
 headers = "0.4.0"
 hyper = { version = "1.5.2", feature = ["full"]}
 serde = { version = "1.0.216", features = ["derive"] }
