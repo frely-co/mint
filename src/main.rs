@@ -1,7 +1,6 @@
 use clap::Parser;
 use mint::{
-    core::cli::Cli,
-    core::cli::Commands,
+    core::cli::{cli::{Cli, Commands}, lambda::{create_lambda_function, invoke_lambda_function}},
     memory::store::{MemoryStore, SharedStore},
     server::create_router,
 };
@@ -41,6 +40,22 @@ async fn main() {
             } else {
                 println!("User not found: {}", username);
             }
+        }
+        Commands::CreateLambda {
+            function_name,
+            runtime,
+            role_arn,
+            handler,
+            zip_file,
+        } => {
+            create_lambda_function(function_name, runtime, role_arn, handler, zip_file);
+        }
+        Commands::InvokeLambda {
+            function_name,
+            payload,
+            output_file,
+        } => {
+            invoke_lambda_function(function_name, payload, output_file);
         }
     }
 }
