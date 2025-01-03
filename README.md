@@ -40,6 +40,16 @@
 
 3. The server runs on `http://127.0.0.1:3000` by default.
 
+## Running the server
+
+
+```bash
+# Build the Docker image
+docker build -t mint .
+
+# Run the Docker container, mapping the container's port 3030 to the host's port 3030
+docker run -p 3000:3000 min-
+```
 ---
 
 ## Example Usage

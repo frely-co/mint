@@ -76,8 +76,10 @@ match content_type {
             .unwrap()
     }
     "application/x-amz-json-1.0" => {
+    //TODO: Handle Dynamo Create table
     if x_amz_target == "DynamoDB_20120810.PutItem" {
         // Handle PutItem request
+        // TODO: Put item on the table using Memory
         eprintln!("Received DynamoDB PutItem request.");
         let put_item_output = PutItemOutput {
             attributes: None,
