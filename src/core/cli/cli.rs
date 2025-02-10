@@ -29,4 +29,10 @@ pub enum Commands {
         payload: String,
         output_file: String,
     },
+    /// Create a DynamoDB table
+    CreateTable { table_name: String },
+    /// Put an item in a DynamoDB table
+    PutItem { table_name: String, item: String },
+    /// Get an item from a DynamoDB table
+    GetItem { table_name: String, key: String },
 }

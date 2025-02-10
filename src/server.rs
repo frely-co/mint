@@ -7,8 +7,7 @@ use crate::memory::store::SharedStore;
 use axum::{
     body::Bytes, extract::State, http::HeaderMap, response::Response, routing::post, Router,
 };
-// use crate::s3::service as s3_service;
-// use crate::dynamodb::service as dynamodb_service;
+use serde_json::from_slice;
 
 pub fn create_router(store: SharedStore) -> Router {
     Router::new()
@@ -76,20 +75,31 @@ match content_type {
             .unwrap()
     }
     "application/x-amz-json-1.0" => {
-    //TODO: Handle Dynamo Create table
-    if x_amz_target == "DynamoDB_20120810.PutItem" {
-        // Handle PutItem request
-        // TODO: Put item on the table using Memory
-        eprintln!("Received DynamoDB PutItem request.");
-        let put_item_output = PutItemOutput {
-            attributes: None,
-            consumed_capacity: None,
-            item_collection_metrics: None,
-        };
-        Response::builder()
-            .status(200)
-            .body(serde_json::to_string(&put_item_output).unwrap().into())
-            .unwrap()
+        if x_amz_target == "DynamoDB_20120810.PutItem" {
+            let payload: crate::dynamodb::models::PutItemRequest = match from_slice(&body_bytes) {
+                Ok(p) => p,
+                Err(e) => {
+                    eprintln!("Failed to parse PutItemRequest: {e}");
+                    return (
+                        StatusCode::BAD_REQUEST,
+                        "Invalid JSON for PutItemRequest",
+                    )
+                        .into_response();
+                }
+            };
+
+            let mut data = store.write().await;
+            data.dynamo.put_item(&payload.table_name, payload.item);
+
+            let put_item_output = PutItemOutput {
+                attributes: None,
+                consumed_capacity: None,
+                item_collection_metrics: None,
+            };
+            Response::builder()
+                .status(200)
+                .body(serde_json::to_string(&put_item_output).unwrap().into())
+                .unwrap()
         } else {
             panic!("Unsupported X-Amz-Target: {}", x_amz_target);
         }

@@ -40,16 +40,16 @@
 
 3. The server runs on `http://127.0.0.1:3000` by default.
 
-## Running the server
-
+### Running with Docker
 
 ```bash
 # Build the Docker image
 docker build -t mint .
 
-# Run the Docker container, mapping the container's port 3030 to the host's port 3030
-docker run -p 3000:3000 min-
+# Run the Docker container, mapping the container's port 3000 to the host's port 3000
+docker run -p 3000:3000 mint
 ```
+
 ---
 
 ## Example Usage
@@ -71,6 +71,38 @@ docker run -p 3000:3000 min-
     -d '{"bucketName": "test-bucket", "key": "example.txt", "content": "Hello, MINT!"}'
   ```
 
+- **Publish a message to SNS**:
+  ```bash
+  curl -X POST http://127.0.0.1:3000/ \
+    -H "Content-Type: application/x-www-form-urlencoded" \
+    -d 'Action=Publish&Message=Hello%20MINT'
+  ```
+
+- **Put an item in DynamoDB**:
+  ```bash
+  curl -X POST http://127.0.0.1:3000/ \
+    -H "X-Amz-Target: DynamoDB_20120810.PutItem" \
+    -H "Content-Type: application/x-amz-json-1.0" \
+    -d '{"TableName": "test-table", "Item": {"id": {"S": "1"}, "name": {"S": "test"}}}'
+  ```
+
+### Interact with MINT using CLI
+
+- **Create a DynamoDB table**:
+  ```bash
+  cargo run -- create-table --table-name test-table
+  ```
+
+- **Put an item in a DynamoDB table**:
+  ```bash
+  cargo run -- put-item --table-name test-table --item '{"id": {"S": "1"}, "name": {"S": "test"}}'
+  ```
+
+- **Get an item from a DynamoDB table**:
+  ```bash
+  cargo run -- get-item --table-name test-table --key 1
+  ```
+
 ---
 
 ### Use SDKs for Easier Interaction
@@ -78,12 +110,12 @@ docker run -p 3000:3000 min-
 Use one of the **MINT SDKs** to simplify integration with your preferred language:
 
 - **[Rust SDK](https://github.com/frelyio/mint-sdk-rust)**
-- **[Python SDK](https://github.com/frelyiomint-sdk-python)**
+- **[Python SDK](https://github.com/frelyio/mint-sdk-python)**
 - **[Java SDK](https://github.com/frelyio/mint-sdk-java)**
 - **[JavaScript SDK](https://github.com/frelyio/mint-sdk-js)**
 
 Example with the Rust SDK:
-``` rust
+```rust
 use mint_sdk::{MINTClient, Cognito, S3};
 
 fn main() {
