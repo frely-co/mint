@@ -4,13 +4,13 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
 pub struct AttributeValue {
     /// <p>An attribute of type Binary. For example:</p> <p> <code>"B": "dGhpcyB0ZXh0IGlzIGJhc2U2NC1lbmNvZGVk"</code> </p>
-    #[serde(rename = "B")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[serde(
-        serialize_with = "crate::dynamodb::serializers::serialize", 
-        deserialize_with = "crate::dynamodb::serializers::deserialize"
-    )]
-    pub b: Option<bytes::Bytes>,
+    // #[serde(rename = "B")]
+    // #[serde(skip_serializing_if = "Option::is_none")]
+    // #[serde(
+    //     serialize_with = "crate::dynamodb::serializers::serialize", 
+    //     deserialize_with = "crate::dynamodb::serializers::deserialize"
+    // )]
+    // pub b: Option<bytes::Bytes>,
     /// <p>An attribute of type Boolean. For example:</p> <p> <code>"BOOL": true</code> </p>
     #[serde(rename = "BOOL")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -51,6 +51,15 @@ pub struct AttributeValue {
     #[serde(rename = "SS")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ss: Option<Vec<String>>,
+}
+
+/// <p>Represents the input of a <code>PutItem</code> operation.</p>
+#[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
+pub struct PutItemInput {
+    #[serde(rename = "Item")]
+    pub item: ::std::collections::HashMap<String, AttributeValue>,
+    #[serde(rename = "TableName")]
+    pub table_name: String,
 }
 
 /// <p>Represents the amount of provisioned throughput capacity consumed on a table or an index.</p>

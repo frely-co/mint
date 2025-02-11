@@ -3,9 +3,7 @@ use mint::{
     core::cli::{
         cli::{Cli, Commands},
         lambda::{create_lambda_function, invoke_lambda_function},
-    },
-    memory::store::{MemoryStore, SharedStore},
-    server::create_router,
+    }, dynamodb::models::AttributeValue, memory::store::{MemoryStore, SharedStore}, server::create_router
 };
 use std::net::SocketAddr;
 use tokio::sync::RwLock;
@@ -69,7 +67,7 @@ async fn main() {
         }
         Commands::PutItem { table_name, item } => {
             let mut data = store.write().await;
-            let item_map: std::collections::HashMap<String, crate::dynamodb::models::AttributeValue> = serde_json::from_str(item).unwrap();
+            let item_map: std::collections::HashMap<String, AttributeValue> = serde_json::from_str(item).unwrap();
             data.dynamo.put_item(table_name, item_map);
             println!("Item added to table {} successfully!", table_name);
         }
