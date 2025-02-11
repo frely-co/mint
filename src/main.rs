@@ -3,9 +3,7 @@ use mint::{
     core::cli::{
         cli::{Cli, Commands},
         lambda::{create_lambda_function, invoke_lambda_function},
-    },
-    memory::store::{MemoryStore, SharedStore},
-    server::create_router,
+    }, dynamodb::models::AttributeValue, memory::store::{MemoryStore, SharedStore}, server::create_router
 };
 use std::net::SocketAddr;
 use tokio::sync::RwLock;
@@ -62,5 +60,24 @@ async fn main() {
             Ok(_) => println!("Lambda function invoked successfully"),
             Err(e) => eprintln!("Failed to invoke Lambda function: {}", e),
         },
+        Commands::CreateTable { table_name } => {
+            let mut data = store.write().await;
+            data.dynamo.create_table(table_name.clone());
+            println!("Table {} created successfully!", table_name);
+        }
+        Commands::PutItem { table_name, item } => {
+            let mut data = store.write().await;
+            let item_map: std::collections::HashMap<String, AttributeValue> = serde_json::from_str(item).unwrap();
+            data.dynamo.put_item(table_name, item_map);
+            println!("Item added to table {} successfully!", table_name);
+        }
+        Commands::GetItem { table_name, key } => {
+            let data = store.read().await;
+            if let Some(item) = data.dynamo.get_item(table_name, key) {
+                println!("Item retrieved: {:?}", item);
+            } else {
+                println!("Item not found in table {}", table_name);
+            }
+        }
     }
 }
