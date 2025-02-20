@@ -35,4 +35,12 @@ pub enum Commands {
     PutItem { table_name: String, item: String },
     /// Get an item from a DynamoDB table
     GetItem { table_name: String, key: String },
+    /// Create an SNS topic
+    CreateTopic { name: String },
+    /// Publish a message to an SNS topic
+    Publish { topic_arn: String, message: String },
+    /// List all SNS topics
+    ListTopics,
+    /// Delete an SNS topic
+    DeleteTopic { topic_arn: String }
 }

@@ -1,22 +1,60 @@
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
-/// <p>Response for Publish action.</p>
-#[derive(Clone, Debug, Default, PartialEq)]
-#[derive(Serialize)]
+#[derive(Clone, Debug, Default, PartialEq, Serialize)]
+pub struct Topic {
+    pub topic_arn: String,
+    pub name: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize)]
 pub struct PublishResult {
-    /// <p>Unique identifier assigned to the published message.</p> <p>Length Constraint: Maximum 100 characters</p>
     #[serde(rename = "MessageId")]
     pub message_id: Option<String>,
-    /// <p>This response element applies only to FIFO (first-in-first-out) topics. </p> <p>The sequence number is a large, non-consecutive number that Amazon SNS assigns to each message. The length of <code>SequenceNumber</code> is 128 bits. <code>SequenceNumber</code> continues to increase for each <code>MessageGroupId</code>.</p>
     #[serde(rename = "SequenceNumber")]
     pub sequence_number: Option<String>,
 }
 
-/// Represents the response structure for a publish operation.
-#[derive(Clone, Debug, Default, PartialEq)]
-#[derive(Serialize)]
+#[derive(Clone, Debug, Default, PartialEq, Serialize)]
 pub struct PublishResponse {
-    /// Contains the result of the publish operation.
     #[serde(rename = "PublishResult")]
     pub publish_result: PublishResult,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize)]
+pub struct CreateTopicResponse {
+    #[serde(rename = "TopicArn")]
+    pub topic_arn: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize)]
+pub struct ListTopicsResponse {
+    #[serde(rename = "Topics")]
+    pub topics: Vec<Topic>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize)]
+pub struct DeleteTopicResponse {
+    #[serde(rename = "Success")]
+    pub success: bool,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Deserialize)]
+pub struct CreateTopicRequest {
+    #[serde(rename = "Name")]
+    pub name: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Deserialize)]
+pub struct PublishRequest {
+    #[serde(rename = "TopicArn")]
+    pub topic_arn: String,
+    #[serde(rename = "Message")]
+    pub message: String,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Deserialize)]
+pub struct DeleteTopicRequest {
+    #[serde(rename = "TopicArn")]
+    pub topic_arn: String,
 }
