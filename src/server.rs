@@ -15,8 +15,6 @@ pub fn create_router(store: SharedStore) -> Router {
         .with_state(store)
 }
 
-/// This handler is a single entry point that checks `X-Amz-Target`
-/// (or other info) and dispatches to the right “service.”
 async fn dispatch_request(
     State(store): State<SharedStore>,
     headers: HeaderMap,
@@ -41,6 +39,8 @@ async fn dispatch_request(
         "application/x-amz-json-1.1" => {
             if x_amz_target.starts_with("AWSCognitoIdentityProviderService") {
                 cognito_service::dispatch_cognito(x_amz_target, store, body_bytes).await
+            } else if x_amz_target.starts_with("SNS") {
+                crate::sns::dispatch_sns(x_amz_target, store, body_bytes).await
             } else {
                 panic!("error");
             }
