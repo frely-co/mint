@@ -16,6 +16,7 @@ pub enum Commands {
     CreateUser { username: String, password: String },
     /// Authenticate a Cognito user
     AuthenticateUser { username: String, password: String },
+    /// Create a Lambda function
     CreateLambda {
         function_name: String,
         runtime: String,
@@ -23,7 +24,7 @@ pub enum Commands {
         handler: String,
         zip_file: String,
     },
-    /// Invoke a Lambda function using SAM CLI
+    /// Invoke a Lambda function
     InvokeLambda {
         function_name: String,
         payload: String,
