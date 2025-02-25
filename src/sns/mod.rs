@@ -1,5 +1,6 @@
 pub mod models;
 pub mod repository;
+pub mod service;
 
 use crate::memory::store::SharedStore;
 use axum::{response::{IntoResponse, Response}, Json};
