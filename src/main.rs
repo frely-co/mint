@@ -3,10 +3,7 @@ use mint::{
     core::cli::{
         cli::{Cli, Commands},
         lambda::{create_lambda_function, invoke_lambda_function},
-    },
-    dynamodb::models::AttributeValue,
-    memory::store::{MemoryStore, SharedStore},
-    server::create_router, sns::models::Topic,
+    }, dynamodb::models::AttributeValue, memory::store::{MemoryStore, SharedStore}, server::create_router, sns::models::Topic
 };
 use std::net::SocketAddr;
 use tokio::sync::RwLock;
@@ -70,8 +67,7 @@ async fn main() {
         }
         Commands::PutItem { table_name, item } => {
             let mut data = store.write().await;
-            let item_map: std::collections::HashMap<String, AttributeValue> =
-                serde_json::from_str(item).unwrap();
+            let item_map: std::collections::HashMap<String, AttributeValue> = serde_json::from_str(item).unwrap();
             data.dynamo.put_item(table_name, item_map);
             println!("Item added to table {} successfully!", table_name);
         }
@@ -86,13 +82,10 @@ async fn main() {
         Commands::CreateTopic { name } => {
             let mut data = store.write().await;
             let topic_arn = format!("arn:aws:sns:local:000000000000:{}", name);
-            data.sns.topics.insert(
-                topic_arn.clone(),
-                Topic {
-                    topic_arn: topic_arn.clone(),
-                    name: name.clone(),
-                },
-            );
+            data.sns.topics.insert(topic_arn.clone(), Topic {
+                topic_arn: topic_arn.clone(),
+                name: name.clone(),
+            });
             println!("Topic {} created successfully!", name);
         }
         Commands::Publish { topic_arn, message } => {
