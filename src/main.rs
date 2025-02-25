@@ -3,7 +3,10 @@ use mint::{
     core::cli::{
         cli::{Cli, Commands},
         lambda::{create_lambda_function, invoke_lambda_function},
-    }, dynamodb::models::AttributeValue, memory::store::{MemoryStore, SharedStore}, server::create_router
+    },
+    dynamodb::models::AttributeValue,
+    memory::store::{MemoryStore, SharedStore},
+    server::create_router, sns::models::Topic,
 };
 use std::net::SocketAddr;
 use tokio::sync::RwLock;
@@ -67,7 +70,8 @@ async fn main() {
         }
         Commands::PutItem { table_name, item } => {
             let mut data = store.write().await;
-            let item_map: std::collections::HashMap<String, AttributeValue> = serde_json::from_str(item).unwrap();
+            let item_map: std::collections::HashMap<String, AttributeValue> =
+                serde_json::from_str(item).unwrap();
             data.dynamo.put_item(table_name, item_map);
             println!("Item added to table {} successfully!", table_name);
         }
@@ -78,6 +82,36 @@ async fn main() {
             } else {
                 println!("Item not found in table {}", table_name);
             }
+        }
+        Commands::CreateTopic { name } => {
+            let mut data = store.write().await;
+            let topic_arn = format!("arn:aws:sns:local:000000000000:{}", name);
+            data.sns.topics.insert(
+                topic_arn.clone(),
+                Topic {
+                    topic_arn: topic_arn.clone(),
+                    name: name.clone(),
+                },
+            );
+            println!("Topic {} created successfully!", name);
+        }
+        Commands::Publish { topic_arn, message } => {
+            let data = store.read().await;
+            if data.sns.topics.contains_key(topic_arn) {
+                println!("Message published to topic {}: {}", topic_arn, message);
+            } else {
+                println!("Topic not found: {}", topic_arn);
+            }
+        }
+        Commands::ListTopics => {
+            let data = store.read().await;
+            let topics: Vec<_> = data.sns.topics.values().collect();
+            println!("Topics: {:?}", topics);
+        }
+        Commands::DeleteTopic { topic_arn } => {
+            let mut data = store.write().await;
+            data.sns.topics.remove(topic_arn);
+            println!("Topic {} deleted successfully!", topic_arn);
         }
     }
 }
