@@ -12,6 +12,7 @@
   - **DynamoDB**: NoSQL database operations.
   - **SQS**: Message queue simulation.
   - **SNS**: Topic-based messaging.
+  - **Lambda**: Serverless function execution.
 - In-memory data store for fast and reliable testing.
 - Language-agnostic API access or SDKs for popular programming languages.
 - Ideal for offline development and cost-efficient cloud testing.
@@ -23,6 +24,7 @@
 ### Prerequisites
 
 - Install **Rust**: [Get Started with Rust](https://www.rust-lang.org/tools/install)
+- Install **SAM CLI**: [Install SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
 
 ### Installation
 
@@ -86,6 +88,22 @@ docker run -p 3000:3000 mint
     -d '{"TableName": "test-table", "Item": {"id": {"S": "1"}, "name": {"S": "test"}}}'
   ```
 
+- **Create a Lambda function**:
+  ```bash
+  curl -X POST http://127.0.0.1:3000/ \
+    -H "X-Amz-Target: AWSLambda.CreateFunction" \
+    -H "Content-Type: application/json" \
+    -d '{"FunctionName": "test-function", "Runtime": "nodejs14.x", "Role": "arn:aws:iam::123456789012:role/lambda-role", "Handler": "index.handler", "Code": {"ZipFile": "base64-encoded-zip-file"}}'
+  ```
+
+- **Invoke a Lambda function**:
+  ```bash
+  curl -X POST http://127.0.0.1:3000/ \
+    -H "X-Amz-Target: AWSLambda.Invoke" \
+    -H "Content-Type: application/json" \
+    -d '{"FunctionName": "test-function", "Payload": "{\"key\": \"value\"}"}'
+  ```
+
 ### Interact with MINT using CLI
 
 - **Create a DynamoDB table**:
@@ -101,6 +119,16 @@ docker run -p 3000:3000 mint
 - **Get an item from a DynamoDB table**:
   ```bash
   cargo run -- get-item --table-name test-table --key 1
+  ```
+
+- **Create a Lambda function**:
+  ```bash
+  cargo run -- create-lambda --function-name test-function --runtime nodejs14.x --role-arn arn:aws:iam::123456789012:role/lambda-role --handler index.handler --zip-file path/to/zip/file.zip
+  ```
+
+- **Invoke a Lambda function**:
+  ```bash
+  cargo run -- invoke-lambda --function-name test-function --payload '{"key": "value"}' --output-file output.txt
   ```
 
 ---
@@ -151,4 +179,3 @@ MINT is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for 
 - **Concise and User-Friendly**: Focuses on getting developers started quickly.
 - **Examples**: Includes HTTP and SDK usage examples for easy reference.
 - **Future-Proof**: Mentions SDKs to guide users to extended functionality.
-

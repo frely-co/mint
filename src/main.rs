@@ -3,7 +3,11 @@ use mint::{
     core::cli::{
         cli::{Cli, Commands},
         lambda::{create_lambda_function, invoke_lambda_function},
-    }, dynamodb::models::AttributeValue, memory::store::{MemoryStore, SharedStore}, server::create_router
+    },
+    dynamodb::models::AttributeValue,
+    memory::store::{MemoryStore, SharedStore},
+    server::create_router,
+    sns::service::SnsService,
 };
 use std::net::SocketAddr;
 use tokio::sync::RwLock;
@@ -12,6 +16,7 @@ use tokio::sync::RwLock;
 async fn main() {
     let cli = Cli::parse();
     let store = SharedStore::new(RwLock::new(MemoryStore::default()));
+    let sns_service = SnsService::new(store.clone());
 
     match &cli.command {
         Commands::Server => {
@@ -67,7 +72,8 @@ async fn main() {
         }
         Commands::PutItem { table_name, item } => {
             let mut data = store.write().await;
-            let item_map: std::collections::HashMap<String, AttributeValue> = serde_json::from_str(item).unwrap();
+            let item_map: std::collections::HashMap<String, AttributeValue> =
+                serde_json::from_str(item).unwrap();
             data.dynamo.put_item(table_name, item_map);
             println!("Item added to table {} successfully!", table_name);
         }
@@ -77,6 +83,28 @@ async fn main() {
                 println!("Item retrieved: {:?}", item);
             } else {
                 println!("Item not found in table {}", table_name);
+            }
+        }
+        Commands::CreateTopic { name } => {
+            let topic_arn = sns_service.create_topic(name.clone()).await;
+            println!("Topic {} created successfully!", topic_arn);
+        }
+        Commands::Publish { topic_arn, message } => {
+            if sns_service.publish(topic_arn.clone()).await {
+                println!("Message published to topic {}: {}", topic_arn, message);
+            } else {
+                println!("Topic not found: {}", topic_arn);
+            }
+        }
+        Commands::ListTopics => {
+            let topics = sns_service.list_topics().await;
+            println!("Topics: {:?}", topics);
+        }
+        Commands::DeleteTopic { topic_arn } => {
+            if sns_service.delete_topic(topic_arn.clone()).await {
+                println!("Topic {} deleted successfully!", topic_arn);
+            } else {
+                println!("Topic not found: {}", topic_arn);
             }
         }
     }
